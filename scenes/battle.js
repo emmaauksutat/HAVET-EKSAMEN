@@ -3,8 +3,8 @@ import { makeDialogBox } from "../entities/dialogBox.js";
 const states = {
   default: "default",
   introNpc: "intro-npc",
-  introNpcPokemon: "intro-npc-pokemon",
-  introPlayerPokemon: "intro-player-pokemon",
+  introNpcSpiller: "intro-npc-spiller",
+  introPlayerSpiller: "intro-player-spiller",
   playerTurn: "player-turn",
   playerAttack: "player-attack",
   npcTurn: "npc-turn",
@@ -12,7 +12,7 @@ const states = {
   winnerDeclared: "winner-declared",
 };
 
-function makePokemon(name, x, finalX, y, maxHp, attacks, dataBox) {
+function makeSpiller(name, x, finalX, y, maxHp, attacks, dataBox) {
   return {
     name,
     finalX,
@@ -55,7 +55,7 @@ export function makeBattle(p) {
       y: 20,
       spriteRef: null,
     },
-    npcPokemon: makePokemon(
+    npcSpiller: makeSpiller(
       "forureningsmonsteret",
       600,
       310,
@@ -69,7 +69,7 @@ export function makeBattle(p) {
       ],
       makeDataBox(-300, 40, 15, 30, 118, 40)
     ),
-    playerPokemon: makePokemon(
+    playerSpiller: makeSpiller(
       "dig",
       -170,
       20,
@@ -83,57 +83,57 @@ export function makeBattle(p) {
       ],
       makeDataBox(510, 220, 38, 30, 136, 40)
     ),
-    drawDataBox(pokemon) {
-      p.image(pokemon.dataBox.spriteRef, pokemon.dataBox.x, pokemon.dataBox.y);
+    drawDataBox(spiller) {
+      p.image(spiller.dataBox.spriteRef, spiller.dataBox.x, spiller.dataBox.y);
       p.text(
-        pokemon.name,
-        pokemon.dataBox.x + pokemon.dataBox.nameOffset.x,
-        pokemon.dataBox.y + pokemon.dataBox.nameOffset.y
+        spiller.name,
+        spiller.dataBox.x + spiller.dataBox.nameOffset.x,
+        spiller.dataBox.y + spiller.dataBox.nameOffset.y
       );
 
       p.push();
       p.angleMode(p.DEGREES);
       p.rotate(360);
       p.noStroke();
-      if (pokemon.dataBox.healthBarLength > 50) {
+      if (spiller.dataBox.healthBarLength > 50) {
         p.fill(0, 200, 0);
       }
-      if (pokemon.dataBox.healthBarLength < 50) {
+      if (spiller.dataBox.healthBarLength < 50) {
         p.fill(255, 165, 0);
       }
-      if (pokemon.dataBox.healthBarLength < 20) {
+      if (spiller.dataBox.healthBarLength < 20) {
         p.fill(200, 0, 0);
       }
       p.rect(
-        pokemon.dataBox.x + pokemon.dataBox.healthBarOffset.x,
-        pokemon.dataBox.y + pokemon.dataBox.healthBarOffset.y,
-        pokemon.dataBox.healthBarLength,
+        spiller.dataBox.x + spiller.dataBox.healthBarOffset.x,
+        spiller.dataBox.y + spiller.dataBox.healthBarOffset.y,
+        spiller.dataBox.healthBarLength,
         6
       );
       p.pop();
     },
-    async dealDamage(targetPokemon, attackingPokemon) {
-      targetPokemon.hp -= attackingPokemon.selectedAttack.power;
-      if (targetPokemon.hp > 0) {
-        targetPokemon.dataBox.healthBarLength =
-          (targetPokemon.hp * targetPokemon.dataBox.maxHealthBarLength) /
-          targetPokemon.maxHp;
+    async dealDamage(targetSpiller, attackingSpiller) {
+      targetSpiller.hp -= attackingSpiller.selectedAttack.power;
+      if (targetSpiller.hp > 0) {
+        targetSpiller.dataBox.healthBarLength =
+          (targetSpiller.hp * targetSpiller.dataBox.maxHealthBarLength) /
+          targetSpiller.maxHp;
         return;
       }
-      targetPokemon.dataBox.healthBarLength = 0;
-      targetPokemon.isFainted = true;
+      targetSpiller.dataBox.healthBarLength = 0;
+      targetSpiller.isFainted = true;
       await new Promise((resolve) => setTimeout(resolve, 1000));
       this.currentState = states.battleEnd;
     },
     load() {
       this.battleBackgroundImage = p.loadImage("assets/battle-background.png");
       this.npc.spriteRef = p.loadImage("assets/MASTER.png");
-      this.npcPokemon.spriteRef = p.loadImage("assets/FIGHTER1.png");
-      this.playerPokemon.spriteRef = p.loadImage("assets/FIGHTER2.png");
-      this.playerPokemon.dataBox.spriteRef = p.loadImage(
+      this.npcSpiller.spriteRef = p.loadImage("assets/FIGHTER1.png");
+      this.playerSpiller.spriteRef = p.loadImage("assets/FIGHTER2.png");
+      this.playerSpiller.dataBox.spriteRef = p.loadImage(
         "assets/databox_thin.png"
       );
-      this.npcPokemon.dataBox.spriteRef = p.loadImage(
+      this.npcSpiller.dataBox.spriteRef = p.loadImage(
         "assets/databox_thin_foe.png"
       );
       this.dialogBox.load();
@@ -146,15 +146,15 @@ export function makeBattle(p) {
           this.currentState = states.introNpc;
           this.dialogBox.clearText();
           this.dialogBox.displayText(
-            `Vi har brug for din hjælp, for at nedbryde \n ${this.npcPokemon.name} !`,
+            `Vi har brug for din hjælp, for at nedbryde \n ${this.npcSpiller.name} !`,
             async () => {
-              this.currentState = states.introNpcPokemon;
+              this.currentState = states.introNpcSpiller;
               await new Promise((resolve) => setTimeout(resolve, 1000));
               this.dialogBox.clearText();
               this.dialogBox.displayText(
                 `Kom så!`,
                 async () => {
-                  this.currentState = states.introPlayerPokemon;
+                  this.currentState = states.introPlayerSpiller;
                   await new Promise((resolve) => setTimeout(resolve, 1000));
                   this.dialogBox.clearText();
                   this.dialogBox.displayText(
@@ -178,28 +178,28 @@ export function makeBattle(p) {
       }
 
       if (
-        this.currentState === states.introNpcPokemon &&
-        this.npcPokemon.x >= this.npcPokemon.finalX
+        this.currentState === states.introNpcSpiller &&
+        this.npcSpiller.x >= this.npcSpiller.finalX
       ) {
-        this.npcPokemon.x -= 0.5 * p.deltaTime;
-        if (this.npcPokemon.dataBox.x <= 0)
-          this.npcPokemon.dataBox.x += 0.5 * p.deltaTime;
+        this.npcSpiller.x -= 0.5 * p.deltaTime;
+        if (this.npcSpiller.dataBox.x <= 0)
+          this.npcSpiller.dataBox.x += 0.5 * p.deltaTime;
       }
 
       if (
-        this.currentState === states.introPlayerPokemon &&
-        this.playerPokemon.x <= this.playerPokemon.finalX
+        this.currentState === states.introPlayerSpiller &&
+        this.playerSpiller.x <= this.playerSpiller.finalX
       ) {
-        this.playerPokemon.x += 0.5 * p.deltaTime;
-        this.playerPokemon.dataBox.x -= 0.65 * p.deltaTime;
+        this.playerSpiller.x += 0.5 * p.deltaTime;
+        this.playerSpiller.dataBox.x -= 0.65 * p.deltaTime;
       }
 
-      if (this.playerPokemon.isFainted) {
-        this.playerPokemon.y += 0.8 * p.deltaTime;
+      if (this.playerSpiller.isFainted) {
+        this.playerSpiller.y += 0.8 * p.deltaTime;
       }
 
-      if (this.npcPokemon.isFainted) {
-        this.npcPokemon.y += 0.8 * p.deltaTime;
+      if (this.npcSpiller.isFainted) {
+        this.npcSpiller.y += 0.8 * p.deltaTime;
       }
 
       this.dialogBox.update();
@@ -209,17 +209,17 @@ export function makeBattle(p) {
       p.background(0);
       p.image(this.battleBackgroundImage, 0, 0);
 
-      p.image(this.npcPokemon.spriteRef, this.npcPokemon.x, this.npcPokemon.y);
+      p.image(this.npcSpiller.spriteRef, this.npcSpiller.x, this.npcSpiller.y);
 
-      this.drawDataBox(this.npcPokemon);
+      this.drawDataBox(this.npcSpiller);
 
       p.image(
-        this.playerPokemon.spriteRef,
-        this.playerPokemon.x,
-        this.playerPokemon.y
+        this.playerSpiller.spriteRef,
+        this.playerSpiller.x,
+        this.playerSpiller.y
       );
 
-      this.drawDataBox(this.playerPokemon);
+      this.drawDataBox(this.playerSpiller);
 
       if (
         this.currentState === states.default ||
@@ -229,24 +229,24 @@ export function makeBattle(p) {
 
       if (
         this.currentState === states.playerTurn &&
-        !this.playerPokemon.selectedAttack
+        !this.playerSpiller.selectedAttack
       ) {
         this.dialogBox.displayTextImmediately(
-          `1) ${this.playerPokemon.attacks[0].name}    3) ${this.playerPokemon.attacks[2].name}\n2) ${this.playerPokemon.attacks[1].name}   4) ${this.playerPokemon.attacks[3].name}`
+          `1) ${this.playerSpiller.attacks[0].name}    3) ${this.playerSpiller.attacks[2].name}\n2) ${this.playerSpiller.attacks[1].name}   4) ${this.playerSpiller.attacks[3].name}`
         );
       }
 
       if (
         this.currentState === states.playerTurn &&
-        this.playerPokemon.selectedAttack &&
-        !this.playerPokemon.isAttacking &&
-        !this.playerPokemon.isFainted
+        this.playerSpiller.selectedAttack &&
+        !this.playerSpiller.isAttacking &&
+        !this.playerSpiller.isFainted
       ) {
         this.dialogBox.clearText();
         this.dialogBox.displayText(
-          `${this.playerPokemon.name} valgte ${this.playerPokemon.selectedAttack.name} !`,
+          `${this.playerSpiller.name} valgte ${this.playerSpiller.selectedAttack.name} !`,
           async () => {
-            await this.dealDamage(this.npcPokemon, this.playerPokemon);
+            await this.dealDamage(this.npcSpiller, this.playerSpiller);
             if (this.currentState !== states.battleEnd) {
               await new Promise((resolve) => setTimeout(resolve, 1000));
               this.dialogBox.clearText();
@@ -254,23 +254,23 @@ export function makeBattle(p) {
             }
           }
         );
-        this.playerPokemon.isAttacking = true;
+        this.playerSpiller.isAttacking = true;
       }
 
-      if (this.currentState === states.npcTurn && !this.npcPokemon.isFainted) {
-        this.npcPokemon.selectedAttack =
-          this.npcPokemon.attacks[
-            Math.floor(Math.random() * this.npcPokemon.attacks.length)
+      if (this.currentState === states.npcTurn && !this.npcSpiller.isFainted) {
+        this.npcSpiller.selectedAttack =
+          this.npcSpiller.attacks[
+            Math.floor(Math.random() * this.npcSpiller.attacks.length)
           ];
         this.dialogBox.clearText();
         this.dialogBox.displayText(
-          `din modspiller ${this.npcPokemon.name} brugte \n ${this.npcPokemon.selectedAttack.name} !`,
+          `din modspiller ${this.npcSpiller.name} brugte \n ${this.npcSpiller.selectedAttack.name} !`,
           async () => {
-            await this.dealDamage(this.playerPokemon, this.npcPokemon);
+            await this.dealDamage(this.playerSpiller, this.npcSpiller);
             if (this.currentState !== states.battleEnd) {
               await new Promise((resolve) => setTimeout(resolve, 1000));
-              this.playerPokemon.selectedAttack = null;
-              this.playerPokemon.isAttacking = false;
+              this.playerSpiller.selectedAttack = null;
+              this.playerSpiller.isAttacking = false;
             }
           }
         );
@@ -278,19 +278,19 @@ export function makeBattle(p) {
       }
 
       if (this.currentState === states.battleEnd) {
-        if (this.npcPokemon.isFainted) {
+        if (this.npcSpiller.isFainted) {
           this.dialogBox.clearText();
           this.dialogBox.displayText(
-            `${this.npcPokemon.name} forsvandt ! havet er reddet !`
+            `${this.npcSpiller.name} forsvandt ! havet er reddet !`
           );
           this.currentState = states.winnerDeclared;
           return;
         }
 
-        if (this.playerPokemon.isFainted) {
+        if (this.playerSpiller.isFainted) {
           this.dialogBox.clearText();
           this.dialogBox.displayText(
-            `${this.playerPokemon.name} løb tør for ilt ! alle fisk er døde !`
+            `${this.playerSpiller.name} løb tør for ilt ! alle fisk er døde !`
           );
           this.currentState = states.winnerDeclared;
         }
@@ -303,16 +303,16 @@ export function makeBattle(p) {
       if (this.currentState === states.playerTurn) {
         switch (keyEvent.key) {
           case "1":
-            this.playerPokemon.selectedAttack = this.playerPokemon.attacks[0];
+            this.playerSpiller.selectedAttack = this.playerSpiller.attacks[0];
             break;
           case "2":
-            this.playerPokemon.selectedAttack = this.playerPokemon.attacks[1];
+            this.playerSpiller.selectedAttack = this.playerSpiller.attacks[1];
             break;
           case "3":
-            this.playerPokemon.selectedAttack = this.playerPokemon.attacks[2];
+            this.playerSpiller.selectedAttack = this.playerSpiller.attacks[2];
             break;
           case "4":
-            this.playerPokemon.selectedAttack = this.playerPokemon.attacks[3];
+            this.playerSpiller.selectedAttack = this.playerSpiller.attacks[3];
             break;
           default:
         }
