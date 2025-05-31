@@ -4,6 +4,7 @@ import { makeWorld } from "./scenes/world.js";
 import { makeBattle } from "./scenes/battle.js";
 
 new p5((p) => {
+  
   let font;
   const scenes = ["menu", "world", "battle"];
   let currentScene = "menu";
@@ -65,6 +66,11 @@ new p5((p) => {
     if (keyEvent.keyCode === p.ENTER && currentScene === "menu")
       setScene("world");
 
+    if (currentScene === "world" && world.keyPressed) {
+  world.keyPressed(keyEvent);
+}
+
+    
     if (currentScene === "battle") battle.onKeyPressed(keyEvent);
   };
 

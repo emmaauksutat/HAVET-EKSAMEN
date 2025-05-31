@@ -13,6 +13,8 @@ export function makePlayer(p, x, y) {
     spriteX: 0, //hvor skal player tegnes
     spriteY: -15, // hvor skal player tegnes i y aksen ( -15, så den ikke stopper foran en væg f.eks)
     freeze: false,
+    trashCount: 0,
+
     load() {
       this.spriteRef = p.loadImage("assets/MITANSIGT.png");
     },
